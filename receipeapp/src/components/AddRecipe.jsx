@@ -68,7 +68,7 @@ const AddRecipe = () => {
 
     const handleSave = () => { 
         if (!recipeName || !ingredients || !directions) {
-            alert('Please fill out all fields');
+            alert('Please fill out all the fields');
             return;
         }
         const savedRecipes = JSON.parse(localStorage.getItem('recipes')) || [];

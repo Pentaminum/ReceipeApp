@@ -35,17 +35,40 @@ const Heading = styled.div`
     border-bottom: 2px solid black;
 `;
 
-const DisplayItem = styled.div`
+const ItemBox = styled.div`
     position: fixed;
     top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: white;
     width: 300px;
-    height: 300px;
+    height: 400px;
     padding: 20px;
     z-index: 1000;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+`;
+
+const CloseButton = styled.button`
+    color: white;
+    background: #76D7C4;
+    border: none;
+    cursor: pointer;
+    &:hover {
+        color: #D7DBDD;
+        background: #48C9B0;
+    }
+`;
+
+const Contents = styled.div`
+    width: 100%;
+    height: 100%;
+    #border: 1px solid #D7DBDD;
+    flex-grow: 1;
+    overflow-y: auto;
+    white-space: pre-line;
 `;
 
 
@@ -68,8 +91,16 @@ const SavedRecipes = () => {
 
     const formatLastModified = (lastModified) => {
         const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true };
-        return new Date(lastModified).toLocaleString('en-US', options).replace(",", "");
-    };
+        
+        const formattedDate = new Date(lastModified).toLocaleString('en-US', options);
+        
+        const [date, time] = formattedDate.split(', ');
+        const [hourMinute, period] = time.split(' ');
+        const [hour, minute] = hourMinute.split(':');
+        const [month, day, year] = date.split('/');
+        const formattedDateResult = `${year}-${month}-${day} ${hour}:${minute} ${period}`;
+        return `${formattedDateResult}`;
+        };
 
     return (
         <div>
@@ -80,15 +111,21 @@ const SavedRecipes = () => {
                 ))}
             </RecipeForm>
             {selectedRecipe && (
-                <DisplayItem visible={selectedRecipe !== null}>
-                    <div>
-                        <button onClick={closeDisplay}>X</button>
-                        <div>{selectedRecipe.name}</div>
-                        <div>Last Modified: {formatLastModified(selectedRecipe.lastModified)}</div>
-                        <div>{selectedRecipe.ingredients}</div>
-                        <div>{selectedRecipe.directions}</div>
-                    </div>
-                </DisplayItem>
+                <ItemBox visible={selectedRecipe !== null}>
+                    <CloseButton onClick={closeDisplay}>X</CloseButton>
+                    <Contents>
+                        <div style={{fontSize: '20px', marginBottom: '20px'}}>{selectedRecipe.name}</div>
+                        <div style={{marginBottom: '20px'}}>Last Modified: {formatLastModified(selectedRecipe.lastModified)}</div>
+                        <div style={{marginBottom: '20px'}}>
+                            <div>Ingredients:</div>
+                            <div style={{ marginTop: '10px', marginLeft: '10px', marginRight: '10px' }}>{selectedRecipe.ingredients}</div>
+                        </div>
+                        <div style={{marginBottom: '20px'}}>
+                            <div>Directions:</div>
+                            <div style={{ marginTop: '10px', marginLeft: '10px', marginRight: '10px' }}>{selectedRecipe.directions}</div>
+                        </div>
+                    </Contents>
+                </ItemBox>
             )}
         </div>
     );
