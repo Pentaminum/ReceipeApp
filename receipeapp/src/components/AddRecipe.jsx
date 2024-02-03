@@ -35,7 +35,7 @@ const ButtonContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 100%; /* Ensure ButtonContainer takes full width */
+    width: 100%;
 `;
 
 const Button = styled.button`
@@ -49,7 +49,7 @@ const Button = styled.button`
     text-align: center;
     transition: background-color 0.3s;
     &:hover {
-        background-color: #48C9B0; /* Change background color on hover */
+        background-color: #48C9B0;
         cursor: pointer;
     }
 `;
@@ -78,6 +78,7 @@ const AddRecipe = () => {
             name: recipeName,
             ingredients: ingredients,
             directions: directions,
+            lastModified: new Date().toISOString(),
         };
         
         const updatedRecipes = [...savedRecipes, newRecipe];
