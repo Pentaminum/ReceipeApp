@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 const RecipeForm = styled.div`
@@ -30,26 +30,12 @@ const Heading = styled.div`
 
 
 const SavedRecipes = () => {
-    const recipes = [
-        { id: 1, name: 'Pasta Carbonara' },
-        { id: 2, name: 'Chicken Parmesan' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-        { id: 3, name: 'Chocolate Chip Cookies' },
-    ];
+    const [recipes, setRecipes] = useState([]);
+
+    useEffect(() => {
+        const savedRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
+        setRecipes(savedRecipes);
+    }, []);
 
     return (
         <div>

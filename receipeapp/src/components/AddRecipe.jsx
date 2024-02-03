@@ -65,6 +65,28 @@ const AddRecipe = () => {
         setDirections('');
     };
 
+
+    const handleSave = () => { 
+        if (!recipeName || !ingredients || !directions) {
+            alert('Please fill out all fields');
+            return;
+        }
+        const savedRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
+
+        const newRecipe = {
+            id: savedRecipes.length + 1,
+            name: recipeName,
+            ingredients: ingredients,
+            directions: directions,
+        };
+        
+        const updatedRecipes = [...savedRecipes, newRecipe];
+
+        localStorage.setItem('recipes', JSON.stringify(updatedRecipes));
+        handleReset();
+    }
+
+    
     return (
         <div>
             <RecipeForm>
@@ -95,7 +117,7 @@ const AddRecipe = () => {
                 />
                 <ButtonContainer>
                     <Button onClick={handleReset}>RESET</Button>
-                    <Button>SAVE</Button>
+                    <Button onClick={handleSave}>SAVE</Button>
                 </ButtonContainer>
             </RecipeForm>
         </div>
