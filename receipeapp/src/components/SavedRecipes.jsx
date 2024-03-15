@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 
 const RecipeForm = styled.div`
     width: 100%; 
@@ -94,9 +95,17 @@ const SavedRecipes = () => {
     const [selectedRecipe, setSelectedRecipe] = useState(null);
     const [updatedRecipe, setUpdatedRecipe] = useState(null);
 
+    const fetchRecipes = async () => {
+        try {
+            const response = await axios.get('/recipes');
+            setRecipes(response.data);
+        } catch (error) {
+            console.error('Error occurred while fetching recipes:', error);
+        }
+    };
+
     useEffect(() => {
-        const savedRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
-        setRecipes(savedRecipes);
+        fetchRecipes();
     }, []);
 
     const displayRecipe = (recipe) => {
@@ -108,31 +117,42 @@ const SavedRecipes = () => {
         setSelectedRecipe(null);
     };
 
-    const updateRecipe = () => {
-        // Update the recipe in localStorage
-        const updatedRecipes = recipes.map(recipe => {
-            if (recipe.id === updatedRecipe.id) {
-                return {
-                    ...updatedRecipe,
-                    lastModified: new Date().getTime() // Update last modified date
-                };
+    const updateRecipe = async () => {
+        try {
+            if (!updatedRecipe.ingredients || !updatedRecipe.directions) {
+                alert('Please fill out all the fields');
+                return;
             }
-            return recipe;
-        });
-        localStorage.setItem('recipes', JSON.stringify(updatedRecipes));
-        setRecipes(updatedRecipes);
-        setSelectedRecipe(null);
+            const response = await fetch(`/recipes/${updatedRecipe.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedRecipe),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to update recipe');
+            }
+            await fetchRecipes();
+            setSelectedRecipe(null);
+        } catch (error) {
+            console.error('Error updating recipe:', error);
+        }
     };
 
-    const deleteRecipe = () => {
-        // Filter out the recipe with the given ID and update the recipes array
-        const updatedRecipes = recipes.filter(recipe => recipe.id !== selectedRecipe.id);
-        // Update the localStorage with the updated recipes array
-        localStorage.setItem('recipes', JSON.stringify(updatedRecipes));
-        // Update the state to reflect the deletion
-        setRecipes(updatedRecipes);
-        // Close the display after deleting the recipe
-        setSelectedRecipe(null);
+    const deleteRecipe = async () => {
+        try {
+            const response = await fetch(`/recipes/${selectedRecipe.id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('Failed to delete recipe');
+            }
+            await fetchRecipes();
+            setSelectedRecipe(null);
+        } catch (error) {
+            console.error('Error deleting recipe:', error);
+        }
     };
 
     const handleChange = (e, field) => {
@@ -144,17 +164,28 @@ const SavedRecipes = () => {
     };
 
     const formatLastModified = (lastModified) => {
-        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true };
-        
-        const formattedDate = new Date(lastModified).toLocaleString('en-US', options);
-        
-        const [date, time] = formattedDate.split(', ');
-        const [hourMinute, period] = time.split(' ');
-        const [hour, minute] = hourMinute.split(':');
-        const [month, day, year] = date.split('/');
-        const formattedDateResult = `${year}-${month}-${day} ${hour}:${minute} ${period}`;
-        return `${formattedDateResult}`;
-        };
+        if (!lastModified) {
+            return 'Unknown';
+        }
+
+        try {
+            const date = new Date(lastModified);
+    
+            // 날짜와 시간을 가져옵니다.
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hour = String(date.getHours()).padStart(2, '0');
+            const minute = String(date.getMinutes()).padStart(2, '0');
+            const second = String(date.getSeconds()).padStart(2, '0');
+    
+            // 형식화된 날짜 및 시간을 반환합니다.
+            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        } catch (error) {
+            console.error('Error formatting lastModified:', error);
+            return 'Invalid Date';
+        }
+    };
 
     return (
         <div>
@@ -169,7 +200,7 @@ const SavedRecipes = () => {
                     <CloseButton onClick={closeDisplay}>X</CloseButton>
                         <Contents>
                             <div style={{fontSize: '20px', marginBottom: '20px'}}>{selectedRecipe.name}</div>
-                            <div style={{marginBottom: '20px'}}>Last Modified: {formatLastModified(selectedRecipe.lastModified)}</div>
+                            <div style={{marginBottom: '20px'}}>Last Modified: {formatLastModified(selectedRecipe.lastmodified)}</div>
                             <div style={{marginBottom: '20px'}}>
                                 <div>Ingredients:</div>
                                 <textarea 

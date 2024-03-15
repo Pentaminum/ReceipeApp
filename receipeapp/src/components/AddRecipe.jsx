@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 
 const RecipeForm = styled.div`
     width: 100%;
@@ -65,27 +66,25 @@ const AddRecipe = () => {
         setDirections('');
     };
 
-
-    const handleSave = () => { 
+    const handleSave = async () => { 
         if (!recipeName || !ingredients || !directions) {
             alert('Please fill out all the fields');
             return;
         }
-        const savedRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
 
-        const newRecipe = {
-            id: savedRecipes.length + 1,
-            name: recipeName,
-            ingredients: ingredients,
-            directions: directions,
-            lastModified: new Date().toISOString(),
-        };
-        
-        const updatedRecipes = [...savedRecipes, newRecipe];
-
-        localStorage.setItem('recipes', JSON.stringify(updatedRecipes));
-        handleReset();
-    }
+        try {
+            await axios.post('/recipes', {
+                name: recipeName,
+                ingredients: ingredients,
+                directions: directions,
+                lastModified: new Date().toISOString(),
+            });
+            handleReset();
+        } catch (error) {
+            console.error('Error occurred while adding a recipe:', error);
+            alert('Failed to add recipe. Please try again.');
+        }
+    };
 
     
     return (

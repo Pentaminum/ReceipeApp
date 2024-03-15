@@ -5,6 +5,9 @@ services:
     build: .
     ports:
       - "8081:8080"
+    depends_on:
+      - db
+    restart: on-failure
   db: 
     image: 'postgres' # Change the image to use PostgreSQL
     ports:
