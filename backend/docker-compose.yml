@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   server:
-    build: .
+    image: 'scott0929/receipeapp'
     ports:
       - "3000:8080"
     depends_on:
